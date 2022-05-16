@@ -47,5 +47,5 @@ app.include_router(vote.router)
 
 @app.get("/")
 async def root():
-    return {'message':'Hello World Irfan'}
+    return {'message':'Benim adım Irfan Senin adın ne'}
 
