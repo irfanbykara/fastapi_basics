@@ -27,6 +27,8 @@ class User(Base):
     created_at = Column(TIMESTAMP(timezone=True),nullable=False,
                         server_default=text('now()'))
     phone_number = Column(String)
+    image_url = Column(String)
+    trial_str = Column(String,nullable=True)
 
 
 class Vote(Base):
@@ -35,3 +37,10 @@ class Vote(Base):
                      ondelete="CASCADE"),primary_key=True)
     post_id = Column(Integer, ForeignKey("posts.id",
                      ondelete="CASCADE"),primary_key=True)
+
+class BlackListTokens(Base):
+    __tablename__ = 'blacklist_tokens'
+    id = Column(Integer, primary_key=True, nullable=False)
+    token = Column(String, nullable=False)
+
+

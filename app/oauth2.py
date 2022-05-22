@@ -6,6 +6,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from . import database
 from .config import settings
+
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 # SECRET_KEY
 
@@ -45,6 +47,13 @@ def verify_access_token(token:str, credentials_exception):
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
+
+    blacklisted_token = db.query(models.BlackListTokens).filter(models.BlackListTokens.token==token).first()
+    if blacklisted_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                          detail=f"Could not validate credentials",
+                                          headers={"WWW-Authenticate": "Bearer"})
+
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                           detail=f"Could not validate credentials",
                                           headers={"WWW-Authenticate": "Bearer"})
@@ -53,3 +62,5 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
     return user
 
+def get_current_user_token(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
+    return token

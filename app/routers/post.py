@@ -10,7 +10,7 @@ from .. import models, schemas,utils,oauth2
 from ..database import engine, SessionLocal, get_db
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-
+from ..config import settings
 router = APIRouter(
     prefix="/posts",
     tags = ['Posts']
@@ -35,7 +35,7 @@ async def create_posts(post:schemas.CreatePost,db: Session = Depends(get_db),cur
     # cursor.execute("""INSERT INTO "Posts" (title,content,published)
     # VALUES(%s,%s,%s) RETURNING * """,(post.title,post.content,post.published))
     # new_post = cursor.fetchone()
-    current_user.id
+    # current_user.id
     print(current_user.email)
     new_post = models.Post(
         owner_id=current_user.id,
@@ -49,10 +49,14 @@ async def create_posts(post:schemas.CreatePost,db: Session = Depends(get_db),cur
 
 
 @router.get("/{id}",response_model=schemas.Post)
-async def get_post(id:int,response:Response,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
+async def get_post(id:int,response:Response,db: Session = Depends(get_db),
+                   current_user:int=Depends(oauth2.get_current_user),
+                   current_user_token:int=Depends(oauth2.get_current_user_token)):
     #
     # cursor.execute("""SELECT * FROM "Posts" WHERE id = %s """,(str(id),))
     # post = cursor.fetchone()
+    print(current_user_token)
+    print(settings.database_name)
     post = db.query(models.Post).filter(models.Post.id==id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -61,7 +65,8 @@ async def get_post(id:int,response:Response,db: Session = Depends(get_db),curren
 
 
 @router.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT,)
-def delete_post(id,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
+def delete_post(id,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user),
+                ):
     # cursor.execute( """DELETE FROM "Posts" WHERE id = %s RETURNING *""", (str( id ),) )
     # deleted_post = cursor.fetchone()
     # conn.commit()

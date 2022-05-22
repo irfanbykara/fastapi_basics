@@ -7,6 +7,8 @@ from pydantic.types import conint
 class UserBase(BaseModel):
     email: EmailStr
     password: str
+    image_url: str
+    trial_str: str
 
 class CreateUser(UserBase):
     pass
@@ -15,6 +17,8 @@ class CreateUser(UserBase):
 class User(BaseModel):
     id: int
     email: EmailStr
+    image_url: str
+    trial_str: str
     class Config:
         orm_mode = True
 
